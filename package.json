@@ -1,0 +1,28 @@
+{
+  "name": "mailchimp-readonly-audit",
+  "version": "1.0.0",
+  "description": "Read-only Mailchimp automation audit with OpenAI",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "api": "PORT=${PORT_API:-3001} node src/server.js",
+    "web": "NEXT_PUBLIC_API_BASE_URL=http://localhost:${PORT_API:-3001} next dev -p ${PORT_UI:-3000}",
+    "dev": "concurrently -k -n API,WEB -c magenta,cyan \"npm run api\" \"npm run web\"",
+    "start": "node src/index.js",
+    "audit": "node src/index.js",
+    "ui": "node src/server.js"
+  },
+  "dependencies": {
+    "concurrently": "^9.1.0",
+    "cors": "^2.8.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "next": "^14.2.20",
+    "openai": "^4.67.0",
+    "pg": "^8.20.0",
+    "puppeteer": "^24.40.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tesseract.js": "^7.0.0"
+  }
+}

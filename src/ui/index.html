@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Audit Mailchimp (Read-only)</title>
+    <style>
+      :root{
+        --bg: #0b1220;
+        --card: rgba(255,255,255,0.08);
+        --card-2: rgba(255,255,255,0.06);
+        --text: rgba(255,255,255,0.92);
+        --muted: rgba(255,255,255,0.7);
+        --border: rgba(255,255,255,0.14);
+        --shadow: 0 18px 50px rgba(0,0,0,0.35);
+        --accent: #7c3aed; /* violet */
+        --accent-2: #06b6d4; /* cyan */
+        --good: #22c55e;
+        --warn: #f59e0b;
+        --bad: #ef4444;
+      }
+
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        margin: 0;
+        color: var(--text);
+        min-height: 100vh;
+        background:
+          radial-gradient(1000px 500px at 20% -10%, rgba(124,58,237,0.35), transparent 55%),
+          radial-gradient(900px 450px at 90% 0%, rgba(6,182,212,0.25), transparent 60%),
+          var(--bg);
+      }
+
+      .wrap{
+        max-width: 1020px;
+        margin: 0 auto;
+        padding: 26px 18px 48px;
+      }
+
+      .topbar{
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 18px;
+        border: 1px solid var(--border);
+        background: linear-gradient(135deg, rgba(124,58,237,0.22), rgba(6,182,212,0.12));
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+      }
+
+      h1{
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.2px;
+      }
+
+      .tag{
+        font-size: 12px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: rgba(255,255,255,0.06);
+        color: var(--muted);
+        white-space: nowrap;
+      }
+
+      .grid{
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 16px;
+        margin-top: 16px;
+      }
+
+      @media (max-width: 900px){
+        .grid{ grid-template-columns: 1fr; }
+      }
+
+      .card{
+        border: 1px solid var(--border);
+        background: var(--card);
+        border-radius: 16px;
+        box-shadow: var(--shadow);
+        padding: 16px;
+      }
+
+      .muted { color: var(--muted); font-size: 13px; }
+
+      textarea {
+        width: 100%;
+        min-height: 130px;
+        font-size: 14px;
+        border-radius: 12px;
+        padding: 12px 12px;
+        border: 1px solid var(--border);
+        background: rgba(0,0,0,0.18);
+        color: var(--text);
+        outline: none;
+      }
+      textarea:focus{
+        border-color: rgba(124,58,237,0.65);
+        box-shadow: 0 0 0 4px rgba(124,58,237,0.18);
+      }
+
+      .actions{
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-top: 12px;
+        flex-wrap: wrap;
+      }
+
+      button {
+        padding: 10px 14px;
+        font-size: 14px;
+        cursor: pointer;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.18);
+        background: linear-gradient(135deg, rgba(124,58,237,0.95), rgba(6,182,212,0.75));
+        color: white;
+        font-weight: 650;
+        transition: transform 120ms ease, filter 120ms ease;
+      }
+      button:disabled{
+        cursor: not-allowed;
+        filter: grayscale(0.4);
+        opacity: 0.7;
+      }
+
+      .btn-secondary{
+        background: rgba(255,255,255,0.06);
+        color: var(--text);
+        font-weight: 600;
+      }
+
+      .status{
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      .resultHead{
+        display: flex;
+        gap: 12px;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+
+      .resultBox{
+        margin-top: 14px;
+        border: 1px dashed rgba(255,255,255,0.22);
+        border-radius: 14px;
+        padding: 14px;
+        background: var(--card-2);
+      }
+
+      .kpi{
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 700;
+      }
+
+      .dot{
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: var(--accent-2);
+        box-shadow: 0 0 0 4px rgba(6,182,212,0.18);
+      }
+
+      .spinner{
+        width: 16px;
+        height: 16px;
+        border-radius: 999px;
+        border: 2px solid rgba(255,255,255,0.35);
+        border-top-color: rgba(255,255,255,0.95);
+        animation: spin 0.9s linear infinite;
+        display: inline-block;
+        vertical-align: -3px;
+        margin-right: 8px;
+      }
+      @keyframes spin{
+        to{ transform: rotate(360deg); }
+      }
+
+      .sev{
+        display: inline-flex;
+        align-items: center;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        border: 1px solid var(--border);
+        font-weight: 750;
+        letter-spacing: 0.2px;
+      }
+
+      .sev.high { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.45); color: #fecaca; }
+      .sev.medium { background: rgba(245,158,11,0.18); border-color: rgba(245,158,11,0.48); color: #fde68a; }
+      .sev.low { background: rgba(34,197,94,0.16); border-color: rgba(34,197,94,0.46); color: #bbf7d0; }
+
+      .issues{
+        margin-top: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .issueCard{
+        border: 1px solid rgba(255,255,255,0.16);
+        background: rgba(255,255,255,0.05);
+        border-radius: 14px;
+        padding: 12px;
+      }
+
+      .issueTop{
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+      }
+
+      .issueMeta{
+        font-size: 12.5px;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
+      .mono{
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      }
+
+      .field{
+        margin-top: 8px;
+      }
+      .fieldLabel{
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 4px;
+      }
+      pre{
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        padding: 10px 12px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(0,0,0,0.18);
+        font-size: 13px;
+      }
+
+      .hidden{ display:none; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="topbar">
+        <div>
+          <h1>Audit Mailchimp (lecture seule)</h1>
+          <div class="muted" style="margin-top:6px; font-size:13px;">
+            L’IA détecte ce qui semble “pas à jour” par rapport à votre requête.
+            Aucun changement n’est jamais fait sur Mailchimp (GET uniquement).
+          </div>
+        </div>
+        <div class="tag">Interface locale · `POST /api/audit`</div>
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <div class="muted" style="margin-bottom:10px;">
+            Décrivez ce qui a changé dans l’entreprise (tarifs, horaires, offres, adresse, process, etc.).
+          </div>
+          <textarea id="update" placeholder="Ex: Nous avons changé les horaires du support en 24/7, et mis à jour nos tarifs."></textarea>
+
+          <div class="actions">
+            <button id="run">Lancer l’audit</button>
+            <span id="status" class="status"></span>
+            <button id="clear" class="btn-secondary" type="button">Effacer</button>
+          </div>
+
+          <div id="busyHint" class="muted" style="margin-top:12px;">
+            Tip: si l’audit prend du temps, c’est normal (lecture Mailchimp + analyse IA).
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="resultHead">
+            <div>
+              <div style="font-weight:800;">Résultat</div>
+              <div class="muted" style="margin-top:4px;">Résumé + issues potentiellement périmées.</div>
+            </div>
+            <div class="kpi">
+              <span id="kpiDot" class="dot"></span>
+              <span id="kpiText" class="mono">—</span>
+            </div>
+          </div>
+
+          <div id="resultBox" class="resultBox hidden">
+            <div class="field">
+              <div class="fieldLabel">Résumé</div>
+              <pre id="summary"></pre>
+            </div>
+
+            <div class="issues" id="issues"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const runBtn = document.getElementById("run");
+      const updateEl = document.getElementById("update");
+      const statusEl = document.getElementById("status");
+      const clearBtn = document.getElementById("clear");
+
+      const resultBox = document.getElementById("resultBox");
+      const summaryEl = document.getElementById("summary");
+      const issuesEl = document.getElementById("issues");
+      const kpiText = document.getElementById("kpiText");
+      const kpiDot = document.getElementById("kpiDot");
+
+      function escapeHtml(s) {
+        return String(s ?? "")
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function severityClass(sev) {
+        const s = String(sev || "low").toLowerCase();
+        if (s === "high") return "high";
+        if (s === "medium") return "medium";
+        return "low";
+      }
+
+      function renderAudit(audit) {
+        const issues = Array.isArray(audit.issues) ? audit.issues : [];
+        const summary = audit.summary || "";
+
+        summaryEl.textContent = summary;
+        issuesEl.innerHTML = "";
+
+        if (issues.length === 0) {
+          const el = document.createElement("div");
+          el.className = "issueCard";
+          el.innerHTML = "<div class='muted' style='font-weight:650;'>Aucune issue détectée.</div>";
+          issuesEl.appendChild(el);
+          kpiText.textContent = "0";
+          return;
+        }
+
+        // KPI dot color based on max severity
+        const hasHigh = issues.some(i => String(i.severity || "").toLowerCase() === "high");
+        const hasMedium = issues.some(i => String(i.severity || "").toLowerCase() === "medium");
+        if (hasHigh) {
+          kpiDot.style.background = "var(--bad)";
+          kpiDot.style.boxShadow = "0 0 0 4px rgba(239,68,68,0.18)";
+        } else if (hasMedium) {
+          kpiDot.style.background = "var(--warn)";
+          kpiDot.style.boxShadow = "0 0 0 4px rgba(245,158,11,0.18)";
+        } else {
+          kpiDot.style.background = "var(--good)";
+          kpiDot.style.boxShadow = "0 0 0 4px rgba(34,197,94,0.18)";
+        }
+
+        kpiText.textContent = String(issues.length);
+
+        for (const issue of issues) {
+          const sev = issue.severity || "low";
+          const cls = severityClass(sev);
+          const workflowTitle = issue.workflow_title ? `Workflow: ${issue.workflow_title}` : "";
+          const emailTitle = issue.email_title ? `Email: ${issue.email_title}` : "";
+
+          const card = document.createElement("div");
+          card.className = "issueCard";
+          card.innerHTML = `
+            <div class="issueTop">
+              <span class="sev ${cls}">${escapeHtml(String(sev).toUpperCase())}</span>
+              <div class="issueMeta">
+                ${workflowTitle ? escapeHtml(workflowTitle) : ""}
+                ${emailTitle ? "<br/>" + escapeHtml(emailTitle) : ""}
+              </div>
+            </div>
+            <div class="field">
+              <div class="fieldLabel">Raison</div>
+              <pre>${escapeHtml(issue.reason || "")}</pre>
+            </div>
+            <div class="field">
+              <div class="fieldLabel">Evidence</div>
+              <pre>${escapeHtml(issue.evidence || "")}</pre>
+            </div>
+          `;
+          issuesEl.appendChild(card);
+        }
+      }
+
+      runBtn.addEventListener("click", async () => {
+        const update = String(updateEl.value || "").trim();
+        if (!update) {
+          statusEl.textContent = "Veuillez saisir un changement.";
+          return;
+        }
+        runBtn.disabled = true;
+        clearBtn.disabled = true;
+        statusEl.innerHTML = '<span class="spinner"></span>En cours... (accès Mailchimp + IA)';
+        resultBox.classList.remove("hidden");
+        summaryEl.textContent = "";
+        issuesEl.innerHTML = "";
+        summaryEl.textContent = "Chargement…";
+
+        try {
+          const resp = await fetch("/api/audit", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ update })
+          });
+          const data = await resp.json();
+          if (!resp.ok) {
+            throw new Error(data.error || "Erreur API");
+          }
+          renderAudit(data);
+          statusEl.textContent = "Terminé.";
+        } catch (e) {
+          statusEl.textContent = "Erreur: " + e.message;
+          resultBox.classList.remove("hidden");
+          summaryEl.textContent = "Erreur";
+          issuesEl.innerHTML = "<div class='issueCard'><pre>" + escapeHtml(e.message || String(e)) + "</pre></div>";
+        }
+
+        runBtn.disabled = false;
+        clearBtn.disabled = false;
+      });
+
+      clearBtn.addEventListener("click", () => {
+        updateEl.value = "";
+        statusEl.textContent = "";
+        resultBox.classList.add("hidden");
+        summaryEl.textContent = "";
+        issuesEl.innerHTML = "";
+        kpiText.textContent = "—";
+        kpiDot.style.background = "var(--accent-2)";
+      });
+    </script>
+  </body>
+</html>
+
