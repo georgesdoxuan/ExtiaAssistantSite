@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 node_modules/
 .env
 .env.local
 .next/
 output/
+=======
+>>>>>>> 2e03da0 (Update gitignore for local/dev artifacts)
 node_modules
