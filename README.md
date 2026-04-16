@@ -59,6 +59,40 @@ Open:
 
 - `http://localhost:3000`
 
+## Netlify deployment (single project)
+
+This repository can run fully on Netlify with Next.js API routes (no separate API required).
+
+### 1) Connect repository to Netlify
+
+- Build command: `npm run build`
+- `netlify.toml` is already provided
+- Node 20 is configured
+
+### 2) Add environment variables in Netlify
+
+Required:
+
+- `MAILCHIMP_API_KEY`
+- `OPENAI_API_KEY`
+- `OPENAI_MODEL` (optional, defaults to `gpt-4.1-mini`)
+
+Optional:
+
+- `SUPABASE_POOLER_URL`
+- `EXTIA_MAX_URLS`
+- `EXTIA_INDEX_STORAGE`
+
+Do NOT set `API_BASE_URL` if you want fully self-contained Netlify execution.
+
+### 3) Deploy
+
+After deploy, test:
+
+- Mailchimp assistant: `POST /api/mailchimp-assistant`
+- Site index refresh: `POST /api/site-index/refresh`
+- Site assistant: `POST /api/site-assistant`
+
 ## Security Note
 
 If API keys were shared in chat or committed by mistake, rotate them immediately in provider dashboards.

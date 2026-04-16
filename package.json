@@ -7,6 +7,8 @@
   "scripts": {
     "api": "PORT=${PORT_API:-3001} node src/server.js",
     "web": "NEXT_PUBLIC_API_BASE_URL=http://localhost:${PORT_API:-3001} next dev -p ${PORT_UI:-3000}",
+    "build": "next build",
+    "start:web": "next start -p ${PORT_UI:-3000}",
     "dev": "concurrently -k -n API,WEB -c magenta,cyan \"npm run api\" \"npm run web\"",
     "start": "node src/index.js",
     "audit": "node src/index.js",
