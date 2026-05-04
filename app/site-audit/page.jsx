@@ -142,7 +142,7 @@ export default function SiteAuditPage() {
         .navItem{ display:block; text-decoration:none; color:var(--text); border:1px solid transparent; padding:10px 12px; border-radius:12px; margin-bottom:8px; font-size:14px; }
         .navItem:hover{ background:#eef2ff; border-color:#dbeafe; transform: translateX(2px); } .navItem.active{ background:#eef2ff; border-color:#bfdbfe; font-weight:700; }
         .content{ min-width:0; }
-        .topbar{ padding:18px; background:linear-gradient(135deg, rgba(124,58,237,0.16), rgba(37,99,235,0.1)); }
+        .topbar{ padding:18px; background:linear-gradient(135deg, rgba(124,58,237,0.16), rgba(37,99,235,0.1)); border-radius:18px; }
         .grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:16px; margin-top:16px; } @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
         .card{ padding:16px; transition: transform .16s ease, box-shadow .16s ease; }
         .card:hover{ transform: translateY(-1px); box-shadow: 0 16px 44px rgba(17,24,39,0.11); }

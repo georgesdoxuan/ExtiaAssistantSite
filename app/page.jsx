@@ -207,7 +207,7 @@ export default function Page() {
           padding:18px 18px;
           border:1px solid var(--border);
           background: linear-gradient(135deg, rgba(124,58,237,0.16), rgba(37,99,235,0.1));
-          border-radius: 16px;
+          border-radius: 18px;
           box-shadow: var(--shadow);
           backdrop-filter: blur(8px);
         }
