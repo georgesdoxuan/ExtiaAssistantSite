@@ -30,10 +30,7 @@ export default function SiteAuditPage() {
     } catch { return true; }
   }
 
-  const nav = [
-    { href: "/", label: "Audit Mailchimp", active: false },
-    { href: "/site-audit", label: "Audit site extia.fr", active: true }
-  ];
+  const nav = [{ href: "/site-audit", label: "Audit site extia.fr", active: true }];
 
   const allIssues = Array.isArray(result?.findings)
     ? result.findings.map((f) => ({
@@ -142,7 +139,8 @@ export default function SiteAuditPage() {
         .navItem{ display:block; text-decoration:none; color:var(--text); border:1px solid transparent; padding:10px 12px; border-radius:12px; margin-bottom:8px; font-size:14px; }
         .navItem:hover{ background:#eef2ff; border-color:#dbeafe; transform: translateX(2px); } .navItem.active{ background:#eef2ff; border-color:#bfdbfe; font-weight:700; }
         .content{ min-width:0; }
-        .topbar{ padding:18px; background:linear-gradient(135deg, rgba(124,58,237,0.16), rgba(37,99,235,0.1)); border-radius:18px; }
+        .topbar{ padding:18px; background:linear-gradient(135deg, rgba(124,58,237,0.16), rgba(37,99,235,0.1)); border-radius:18px; display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+        .brandTitle{ font-size:20px; font-weight:800; letter-spacing:.2px; color:#1f2937; white-space:nowrap; }
         .grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:16px; margin-top:16px; } @media (max-width:900px){ .grid{ grid-template-columns:1fr; } }
         .card{ padding:16px; transition: transform .16s ease, box-shadow .16s ease; }
         .card:hover{ transform: translateY(-1px); box-shadow: 0 16px 44px rgba(17,24,39,0.11); }
@@ -192,10 +190,13 @@ export default function SiteAuditPage() {
           </aside>
           <div className="content">
             <div className="topbar">
-              <h1 style={{ margin: 0, fontSize: 18 }}>Assistant site extia.fr ✨</h1>
-              <div className="muted" style={{ marginTop: 6 }}>
-                Posez une question sur les contenus du site. Reponse avec preuves URL en lecture seule.
+              <div>
+                <h1 style={{ margin: 0, fontSize: 18 }}>Assistant site extia.fr ✨</h1>
+                <div className="muted" style={{ marginTop: 6 }}>
+                  Posez une question sur les contenus du site. Reponse avec preuves URL en lecture seule.
+                </div>
               </div>
+              <div className="brandTitle">Audit Extia</div>
             </div>
             <div className="grid">
               <div className="card">
